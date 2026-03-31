@@ -5,7 +5,7 @@ enum MuxyTheme {
     static let bg = Color(nsColor: NSColor(srgbRed: 0.11, green: 0.11, blue: 0.14, alpha: 1))
     static let surfaceDim = Color(nsColor: NSColor(srgbRed: 0.13, green: 0.13, blue: 0.16, alpha: 1))
     static let surface = Color(nsColor: NSColor(srgbRed: 0.15, green: 0.15, blue: 0.19, alpha: 1))
-    static let border = Color.white.opacity(0.06)
+    static let border = Color.white.opacity(0.10)
 
     static let accent = Color(nsColor: NSColor(srgbRed: 0.0, green: 0.48, blue: 1.0, alpha: 1))
 

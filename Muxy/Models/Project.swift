@@ -6,6 +6,7 @@ final class Project: Identifiable, Codable, Hashable {
     var path: String
     var sortOrder: Int
     var createdAt: Date
+    var icon: String?
 
     init(name: String, path: String, sortOrder: Int = 0) {
         self.id = UUID()
@@ -13,6 +14,7 @@ final class Project: Identifiable, Codable, Hashable {
         self.path = path
         self.sortOrder = sortOrder
         self.createdAt = Date()
+        self.icon = nil
     }
 
     var pathExists: Bool {

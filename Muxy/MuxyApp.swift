@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 @main
 struct MuxyApp: App {
@@ -45,6 +45,12 @@ private struct WindowConfigurator: NSViewRepresentable {
             w.styleMask.insert(.fullSizeContentView)
             w.isMovableByWindowBackground = true
             w.backgroundColor = MuxyTheme.nsBg
+
+            for button in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+                if let btn = w.standardWindowButton(button) {
+                    btn.superview?.frame.origin.y = -3
+                }
+            }
         }
         return v
     }
