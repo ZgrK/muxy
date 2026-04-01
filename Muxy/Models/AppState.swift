@@ -92,6 +92,14 @@ final class AppState {
         dispatch(.selectTabByIndex(projectID: projectID, areaID: nil, index: index))
     }
 
+    func activeTab(for projectID: UUID) -> TerminalTab? {
+        focusedArea(for: projectID)?.activeTab
+    }
+
+    func togglePinActiveTab(projectID: UUID) {
+        activeTab(for: projectID)?.isPinned.toggle()
+    }
+
     func dispatch(_ action: Action) {
         var workspace = WorkspaceState(
             activeProjectID: activeProjectID,

@@ -20,10 +20,26 @@ final class GhosttyRuntimeEventAdapter: GhosttyRuntimeEventHandling {
 
     func action(app: ghostty_app_t?, target: ghostty_target_s, action: ghostty_action_s) -> Bool {
         switch action.tag {
-        case GHOSTTY_ACTION_SET_TITLE, GHOSTTY_ACTION_DESKTOP_NOTIFICATION:
+        case GHOSTTY_ACTION_SET_TITLE:
+            handleSetTitle(target: target, title: action.action.set_title)
+            return true
+        case GHOSTTY_ACTION_DESKTOP_NOTIFICATION:
             return true
         default:
             return false
+        }
+    }
+
+    private func handleSetTitle(target: ghostty_target_s, title: ghostty_action_set_title_s) {
+        guard target.tag == GHOSTTY_TARGET_SURFACE else { return }
+        guard let surface = target.target.surface else { return }
+        guard let userdata = ghostty_surface_userdata(surface) else { return }
+        guard let titlePtr = title.title else { return }
+
+        let titleString = String(cString: titlePtr)
+        let view = Unmanaged<GhosttyTerminalNSView>.fromOpaque(userdata).takeUnretainedValue()
+        DispatchQueue.main.async {
+            view.onTitleChange?(titleString)
         }
     }
 

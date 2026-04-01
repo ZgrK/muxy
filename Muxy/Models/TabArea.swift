@@ -30,8 +30,22 @@ final class TabArea: Identifiable {
         activeTabID = tab.id
     }
 
+    enum InsertSide { case left, right }
+
+    func createTabAdjacent(to tabID: UUID, side: InsertSide) {
+        guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
+        let tab = TerminalTab(pane: TerminalPaneState(projectPath: projectPath))
+        let insertIndex = side == .left ? index : index + 1
+        tabs.insert(tab, at: insertIndex)
+        if let current = activeTabID {
+            tabHistory.append(current)
+        }
+        activeTabID = tab.id
+    }
+
     func closeTab(_ tabID: UUID) -> UUID? {
-        let closedPaneID = tabs.first(where: { $0.id == tabID })?.pane.id
+        guard let tab = tabs.first(where: { $0.id == tabID }), !tab.isPinned else { return nil }
+        let closedPaneID = tab.pane.id
         tabs.removeAll { $0.id == tabID }
         tabHistory.removeAll { $0 == tabID }
         guard activeTabID == tabID else { return closedPaneID }

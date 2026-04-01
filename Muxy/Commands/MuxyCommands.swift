@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Notification.Name {
+    static let renameActiveTab = Notification.Name("MuxyRenameActiveTab")
+}
+
 struct MuxyCommands: Commands {
     let appState: AppState
 
@@ -45,6 +49,19 @@ struct MuxyCommands: Commands {
                 appState.closeTab(tabID, projectID: projectID)
             }
             .keyboardShortcut("w", modifiers: .command)
+
+            Divider()
+
+            Button("Rename Tab") {
+                NotificationCenter.default.post(name: .renameActiveTab, object: nil)
+            }
+            .keyboardShortcut("t", modifiers: [.command, .shift])
+
+            Button("Pin/Unpin Tab") {
+                guard let projectID = appState.activeProjectID else { return }
+                appState.togglePinActiveTab(projectID: projectID)
+            }
+            .keyboardShortcut("p", modifiers: [.command, .shift])
 
             Divider()
 

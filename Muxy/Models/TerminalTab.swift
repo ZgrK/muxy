@@ -4,11 +4,13 @@ import Foundation
 @Observable
 final class TerminalTab: Identifiable {
     let id = UUID()
-    var title: String
+    var customTitle: String?
+    var isPinned: Bool = false
     let pane: TerminalPaneState
 
-    init(title: String = "Terminal", pane: TerminalPaneState) {
-        self.title = title
+    var title: String { customTitle ?? pane.title }
+
+    init(pane: TerminalPaneState) {
         self.pane = pane
     }
 }

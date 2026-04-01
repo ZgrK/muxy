@@ -15,14 +15,16 @@ struct PaneTabStrip: View {
         HStack(spacing: 0) {
             ForEach(area.tabs) { tab in
                 TabCell(
-                    title: tab.title,
+                    tab: tab,
                     active: tab.id == area.activeTabID,
                     paneFocused: isFocused,
                     onSelect: {
                         onFocus()
                         onSelectTab(tab.id)
                     },
-                    onClose: { onCloseTab(tab.id) }
+                    onClose: { onCloseTab(tab.id) },
+                    onCreateLeft: { area.createTabAdjacent(to: tab.id, side: .left) },
+                    onCreateRight: { area.createTabAdjacent(to: tab.id, side: .right) }
                 )
             }
 
@@ -83,36 +85,54 @@ final class WindowDragView: NSView {
 }
 
 private struct TabCell: View {
-    let title: String
+    @Bindable var tab: TerminalTab
     let active: Bool
     let paneFocused: Bool
     let onSelect: () -> Void
     let onClose: () -> Void
+    let onCreateLeft: () -> Void
+    let onCreateRight: () -> Void
     @State private var hovered = false
+    @State private var isRenaming = false
+    @State private var renameText = ""
+    @FocusState private var renameFieldFocused: Bool
 
     var body: some View {
         HStack(spacing: 0) {
             HStack(spacing: 6) {
-                Image(systemName: "terminal")
-                    .font(.system(size: 12, weight: .semibold))
+                Image(systemName: tab.isPinned ? "pin.fill" : "terminal")
+                    .font(.system(size: tab.isPinned ? 10 : 12, weight: .semibold))
                     .foregroundStyle(active ? MuxyTheme.fg : MuxyTheme.fgMuted)
 
-                Text(title)
-                    .font(.system(size: 12))
-                    .foregroundStyle(active ? MuxyTheme.fg : MuxyTheme.fgMuted)
-                    .lineLimit(1)
+                if isRenaming {
+                    TextField("", text: $renameText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                        .foregroundStyle(MuxyTheme.fg)
+                        .focused($renameFieldFocused)
+                        .onSubmit { commitRename() }
+                        .onExitCommand { cancelRename() }
+                } else {
+                    Text(tab.title)
+                        .font(.system(size: 12))
+                        .foregroundStyle(active ? MuxyTheme.fg : MuxyTheme.fgMuted)
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                }
             }
             .padding(.leading, 12)
             .padding(.trailing, 28)
             .frame(maxWidth: 200, alignment: .leading)
             .frame(height: 32)
             .overlay(alignment: .trailing) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(MuxyTheme.fgDim)
-                    .padding(.trailing, 10)
-                    .opacity(active || hovered ? 1 : 0)
-                    .onTapGesture(perform: onClose)
+                if !tab.isPinned {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(MuxyTheme.fgDim)
+                        .padding(.trailing, 10)
+                        .opacity(active || hovered ? 1 : 0)
+                        .onTapGesture(perform: onClose)
+                }
             }
             .overlay(alignment: .bottom) {
                 if active && paneFocused {
@@ -125,10 +145,51 @@ private struct TabCell: View {
             .contentShape(Rectangle())
             .onTapGesture(perform: onSelect)
             .onHover { hovered = $0 }
-            .overlay(MiddleClickView(action: onClose))
+            .overlay {
+                if !tab.isPinned {
+                    MiddleClickView(action: onClose)
+                }
+            }
+            .contextMenu {
+                Button("New Tab to the Left") { onCreateLeft() }
+                Button("New Tab to the Right") { onCreateRight() }
+                Divider()
+                Button("Rename Tab") { startRename() }
+                if tab.customTitle != nil {
+                    Button("Reset Title") { tab.customTitle = nil }
+                }
+                Divider()
+                Button(tab.isPinned ? "Unpin Tab" : "Pin Tab") {
+                    tab.isPinned.toggle()
+                }
+                if !tab.isPinned {
+                    Divider()
+                    Button("Close Tab") { onClose() }
+                }
+            }
 
             Rectangle().fill(MuxyTheme.border).frame(width: 1)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .renameActiveTab)) { _ in
+            guard active else { return }
+            startRename()
+        }
+    }
+
+    private func startRename() {
+        renameText = tab.title
+        isRenaming = true
+        renameFieldFocused = true
+    }
+
+    private func commitRename() {
+        let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+        tab.customTitle = trimmed.isEmpty ? nil : trimmed
+        isRenaming = false
+    }
+
+    private func cancelRename() {
+        isRenaming = false
     }
 }
 
