@@ -83,17 +83,30 @@ final class ThemeService {
         guard let content = try? String(contentsOfFile: path, encoding: .utf8) else { return nil }
         var bg: NSColor?
         var fg: NSColor?
+        var palette: [Int: NSColor] = [:]
         for line in content.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             if trimmed.hasPrefix("background") && !trimmed.hasPrefix("background-") {
                 bg = extractColor(from: trimmed)
             } else if trimmed.hasPrefix("foreground") && !trimmed.hasPrefix("foreground-") {
                 fg = extractColor(from: trimmed)
+            } else if trimmed.hasPrefix("palette") {
+                parsePaletteEntry(trimmed, into: &palette)
             }
-            if bg != nil && fg != nil { break }
         }
         guard let bg, let fg else { return nil }
-        return ThemePreview(name: name, background: bg, foreground: fg)
+        let sortedPalette = (0..<16).compactMap { palette[$0] }
+        return ThemePreview(name: name, background: bg, foreground: fg, palette: sortedPalette)
+    }
+
+    private nonisolated static func parsePaletteEntry(_ line: String, into palette: inout [Int: NSColor]) {
+        guard let eqIndex = line.firstIndex(of: "=") else { return }
+        let value = line[line.index(after: eqIndex)...].trimmingCharacters(in: .whitespaces)
+        guard let eqIndex2 = value.firstIndex(of: "=") else { return }
+        guard let index = Int(value[..<eqIndex2]) else { return }
+        guard index >= 0 && index < 16 else { return }
+        guard let color = parseHex(String(value[value.index(after: eqIndex2)...])) else { return }
+        palette[index] = color
     }
 
     private nonisolated static func extractColor(from line: String) -> NSColor? {

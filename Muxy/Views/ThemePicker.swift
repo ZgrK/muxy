@@ -90,39 +90,45 @@ private struct ThemeRow: View {
     @State private var hovered = false
 
     var body: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 2) {
-                RoundedRectangle(cornerRadius: 3)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                Text(theme.name)
+                    .font(.system(size: 11))
+                    .foregroundStyle(MuxyTheme.fg)
+                    .lineLimit(1)
+
+                Spacer(minLength: 0)
+
+                if isActive {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+
+            HStack(spacing: 0) {
+                Rectangle()
                     .fill(Color(nsColor: theme.background))
-                    .frame(width: 16, height: 16)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .strokeBorder(MuxyTheme.border, lineWidth: 1)
+                        Text("Ab")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .foregroundStyle(Color(nsColor: theme.foreground))
                     )
+                    .frame(width: 24)
+
+                ForEach(Array(theme.palette.enumerated()), id: \.offset) { _, color in
+                    Rectangle().fill(Color(nsColor: color))
+                }
+            }
+            .frame(height: 14)
+            .clipShape(RoundedRectangle(cornerRadius: 3))
+            .overlay(
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color(nsColor: theme.foreground))
-                    .frame(width: 16, height: 16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .strokeBorder(MuxyTheme.border, lineWidth: 1)
-                    )
-            }
-
-            Text(theme.name)
-                .font(.system(size: 12))
-                .foregroundStyle(MuxyTheme.fg)
-                .lineLimit(1)
-
-            Spacer(minLength: 0)
-
-            if isActive {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Color.accentColor)
-            }
+                    .strokeBorder(MuxyTheme.border, lineWidth: 0.5)
+            )
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.vertical, 5)
         .background(isHighlighted ? MuxyTheme.surface : (hovered ? MuxyTheme.hover : .clear))
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
