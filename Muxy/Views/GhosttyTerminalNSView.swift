@@ -3,7 +3,7 @@ import GhosttyKit
 import QuartzCore
 
 final class GhosttyTerminalNSView: NSView {
-    private(set) var surface: ghostty_surface_t?
+    nonisolated(unsafe) private(set) var surface: ghostty_surface_t?
     private let workingDirectory: String
     var onTitleChange: ((String) -> Void)?
     var onFocus: (() -> Void)?
@@ -85,7 +85,9 @@ final class GhosttyTerminalNSView: NSView {
     }
 
     deinit {
-        destroySurface()
+        if let surface {
+            ghostty_surface_free(surface)
+        }
     }
 
     override func viewDidMoveToWindow() {
