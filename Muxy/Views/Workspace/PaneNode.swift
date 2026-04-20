@@ -11,6 +11,7 @@ struct PaneNode: View {
     let onSelectTab: (UUID, UUID) -> Void
     let onCreateTab: (UUID) -> Void
     let onCreateVCSTab: (UUID) -> Void
+    let onCreateWebViewTab: (UUID) -> Void
     let onCloseTab: (UUID, UUID) -> Void
     let onForceCloseTab: (UUID, UUID) -> Void
     let onSplit: (UUID, SplitDirection) -> Void
@@ -31,6 +32,7 @@ struct PaneNode: View {
                 onSelectTab: { tabID in onSelectTab(area.id, tabID) },
                 onCreateTab: { onCreateTab(area.id) },
                 onCreateVCSTab: { onCreateVCSTab(area.id) },
+                onCreateWebViewTab: { onCreateWebViewTab(area.id) },
                 onCloseTab: { tabID in onCloseTab(area.id, tabID) },
                 onForceCloseTab: { tabID in onForceCloseTab(area.id, tabID) },
                 onSplit: { dir in onSplit(area.id, dir) },
@@ -47,6 +49,7 @@ struct PaneNode: View {
                 onSelectTab: onSelectTab,
                 onCreateTab: onCreateTab,
                 onCreateVCSTab: onCreateVCSTab,
+                onCreateWebViewTab: onCreateWebViewTab,
                 onCloseTab: onCloseTab,
                 onForceCloseTab: onForceCloseTab,
                 onSplit: onSplit,

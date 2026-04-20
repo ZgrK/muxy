@@ -48,13 +48,14 @@ Muxy/
     WorkspaceSnapshot.swift   Save/restore workspace layout to disk
     SplitNode.swift           Recursive binary tree for pane splits
     TabArea.swift             Container for tabs within a single pane
-    TerminalTab.swift         Terminal, VCS, editor, or diff-viewer tab model
+    TerminalTab.swift         Terminal, VCS, editor, diff-viewer, or web-view tab model
     TabDragCoordinator.swift  Cross-pane tab drag-and-drop, TabMoveRequest, SplitPlacement
     KeyBinding.swift          ShortcutAction enum + KeyBinding defaults
     KeyCombo.swift            Key combo encoding, display, matching
     VCSTabState.swift         Git diff viewer state + loading orchestration
     EditorTabState.swift      Code editor tab state (backing store, cursor, search, save)
     DiffViewerTabState.swift  Standalone diff-viewer tab state (single-file diff, unified/split toggle, session-only — not persisted)
+    WebViewTabState.swift     In-app browser tab state (url, load/nav flags, session-only — not persisted)
     FileTreeState.swift       Lightweight file tree state per worktree (lazy expansion, git statuses)
     EditorSettings.swift      @Observable editor preferences (default editor, font)
     TextBackingStore.swift    Line-array backing store for editor documents

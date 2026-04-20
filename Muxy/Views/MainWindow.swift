@@ -304,6 +304,9 @@ struct MainWindow: View {
                 onCreateVCSTab: {
                     openVCS(for: project, preferredAreaID: area.id)
                 },
+                onCreateWebViewTab: {
+                    appState.dispatch(.createWebViewTab(projectID: project.id, areaID: area.id))
+                },
                 onCloseTab: { tabID in
                     appState.closeTab(tabID, areaID: area.id, projectID: project.id)
                 },

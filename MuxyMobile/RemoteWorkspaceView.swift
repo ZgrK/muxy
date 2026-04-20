@@ -146,6 +146,7 @@ struct WorkspaceContentWrapper: View {
         case .vcs: "arrow.triangle.branch"
         case .editor: "doc.text"
         case .diffViewer: "rectangle.split.2x1"
+        case .webView: "globe"
         }
     }
 }

@@ -22,6 +22,7 @@ struct PaneTabStrip: View {
     let onSelectTab: (UUID) -> Void
     let onCreateTab: () -> Void
     let onCreateVCSTab: () -> Void
+    let onCreateWebViewTab: () -> Void
     let onCloseTab: (UUID) -> Void
     let onSplit: (SplitDirection) -> Void
     let onDropAction: (TabDragCoordinator.DropResult) -> Void
@@ -73,6 +74,10 @@ struct PaneTabStrip: View {
                     NotificationCenter.default.post(name: .quickOpen, object: nil)
                 }
                 .help(shortcutTooltip("Quick Open", for: .quickOpen))
+                IconButton(symbol: "globe", size: 12, accessibilityLabel: "Open Browser") {
+                    onCreateWebViewTab()
+                }
+                .help("Open Browser")
                 IconButton(symbol: "square.split.2x1", accessibilityLabel: "Split Right") { onSplit(.horizontal) }
                     .help(shortcutTooltip("Split Right", for: .splitRight))
                 IconButton(symbol: "square.split.1x2", accessibilityLabel: "Split Down") { onSplit(.vertical) }
@@ -455,6 +460,7 @@ private struct TabCell: View {
         case .vcs: label += ", Source Control"
         case .editor: label += ", Editor"
         case .diffViewer: label += ", Diff Viewer"
+        case .webView: label += ", Browser"
         }
         if tab.isPinned { label += ", Pinned" }
         if hasUnread { label += ", Unread" }
@@ -476,6 +482,9 @@ private struct TabCell: View {
         } else if tab.kind == .diffViewer {
             Image(systemName: "rectangle.split.2x1")
                 .font(.system(size: 11, weight: .semibold))
+        } else if tab.kind == .webView {
+            Image(systemName: "globe")
+                .font(.system(size: 12, weight: .semibold))
         } else {
             Image(systemName: "terminal")
                 .font(.system(size: 12, weight: .semibold))

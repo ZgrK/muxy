@@ -11,6 +11,7 @@ struct TabAreaView: View {
     let onSelectTab: (UUID) -> Void
     let onCreateTab: () -> Void
     let onCreateVCSTab: () -> Void
+    let onCreateWebViewTab: () -> Void
     let onCloseTab: (UUID) -> Void
     let onForceCloseTab: (UUID) -> Void
     let onSplit: (SplitDirection) -> Void
@@ -31,6 +32,7 @@ struct TabAreaView: View {
                     onSelectTab: onSelectTab,
                     onCreateTab: onCreateTab,
                     onCreateVCSTab: onCreateVCSTab,
+                    onCreateWebViewTab: onCreateWebViewTab,
                     onCloseTab: onCloseTab,
                     onSplit: onSplit,
                     onDropAction: onDropAction,
@@ -145,6 +147,8 @@ private struct TabContentView: View {
             EditorPane(state: editorState, focused: focused, onFocus: onFocus)
         case let .diffViewer(diffState):
             DiffViewerPane(state: diffState, focused: focused, onFocus: onFocus)
+        case let .webView(webState):
+            WebViewPane(state: webState, focused: focused, onFocus: onFocus)
         }
     }
 }
