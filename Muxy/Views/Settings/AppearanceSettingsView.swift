@@ -5,7 +5,6 @@ struct AppearanceSettingsView: View {
     @State private var showThemePicker = false
     @State private var currentTheme: String?
     @AppStorage("muxy.vcsDisplayMode") private var vcsDisplayMode = VCSDisplayMode.tab.rawValue
-    @AppStorage(TabCloseConfirmationPreferences.confirmRunningProcessKey) private var confirmRunningProcess = true
 
     var body: some View {
         SettingsContainer {
@@ -33,7 +32,7 @@ struct AppearanceSettingsView: View {
                 }
             }
 
-            SettingsSection("Source Control") {
+            SettingsSection("Source Control", showsDivider: false) {
                 SettingsRow("Display Mode") {
                     Picker("", selection: $vcsDisplayMode) {
                         ForEach(VCSDisplayMode.allCases) { mode in
@@ -44,13 +43,6 @@ struct AppearanceSettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(width: SettingsMetrics.controlWidth)
                 }
-            }
-
-            SettingsSection("Tabs", showsDivider: false) {
-                SettingsToggleRow(
-                    label: "Confirm before closing a tab with a running process",
-                    isOn: $confirmRunningProcess
-                )
             }
         }
         .task {
