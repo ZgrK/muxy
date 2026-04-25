@@ -167,6 +167,72 @@ struct GitPRParserTests {
             let info = GitPRParser.parsePRInfo(json)
             #expect(info?.state == .open)
         }
+
+        @Test("isCrossRepository true parses")
+        func isCrossRepositoryTrue() {
+            let json = #"{"url":"u","number":1,"state":"OPEN","isCrossRepository":true}"#
+            let info = GitPRParser.parsePRInfo(json)
+            #expect(info?.isCrossRepository == true)
+        }
+
+        @Test("isCrossRepository false parses")
+        func isCrossRepositoryFalse() {
+            let json = #"{"url":"u","number":1,"state":"OPEN","isCrossRepository":false}"#
+            let info = GitPRParser.parsePRInfo(json)
+            #expect(info?.isCrossRepository == false)
+        }
+
+        @Test("missing isCrossRepository defaults to false")
+        func isCrossRepositoryMissing() {
+            let json = #"{"url":"u","number":1,"state":"OPEN"}"#
+            let info = GitPRParser.parsePRInfo(json)
+            #expect(info?.isCrossRepository == false)
+        }
+    }
+
+    @Suite("parsePRInfoMatchingHeadSha")
+    struct PRInfoMatchingHeadSha {
+        @Test("matches PR by head SHA case-insensitively")
+        func matches() {
+            let json = """
+            [
+              {
+                "url": "https://github.com/o/r/pull/1",
+                "number": 1,
+                "state": "OPEN",
+                "baseRefName": "main",
+                "statusCheckRollup": [],
+                "headRefOid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              },
+              {
+                "url": "https://github.com/o/r/pull/2",
+                "number": 2,
+                "state": "OPEN",
+                "baseRefName": "main",
+                "statusCheckRollup": [],
+                "headRefOid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              }
+            ]
+            """
+            let info = GitPRParser.parsePRInfoMatchingHeadSha(
+                json,
+                headSha: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+            )
+            #expect(info?.number == 2)
+        }
+
+        @Test("returns nil when no PR matches")
+        func noMatch() {
+            let json = """
+            [{"url":"u","number":1,"state":"OPEN","statusCheckRollup":[],"headRefOid":"aa"}]
+            """
+            #expect(GitPRParser.parsePRInfoMatchingHeadSha(json, headSha: "deadbeef") == nil)
+        }
+
+        @Test("returns nil for invalid JSON")
+        func invalid() {
+            #expect(GitPRParser.parsePRInfoMatchingHeadSha("not-json", headSha: "x") == nil)
+        }
     }
 
     @Suite("parseAheadBehind")
@@ -309,6 +375,30 @@ struct GitPRParserTests {
             let items = GitPRParser.parsePRList(json)
             #expect(items[0].state == .merged)
             #expect(items[1].state == .closed)
+        }
+
+        @Test("headRefOid and merge fields parse")
+        func headRefOidAndMergeFields() {
+            let json = """
+            [
+              {
+                "number": 7,
+                "title": "Hello",
+                "author": {"login": "alice"},
+                "headRefName": "feature",
+                "headRefOid": "cccccccccccccccccccccccccccccccccccccccc",
+                "baseRefName": "main",
+                "state": "OPEN",
+                "mergeable": "CONFLICTING",
+                "mergeStateStatus": "DIRTY"
+              }
+            ]
+            """
+            let items = GitPRParser.parsePRList(json)
+            #expect(items.count == 1)
+            #expect(items[0].headRefOid == "cccccccccccccccccccccccccccccccccccccccc")
+            #expect(items[0].mergeable == false)
+            #expect(items[0].mergeStateStatus == .dirty)
         }
 
         @Test("updatedAt parses with and without fractional seconds")

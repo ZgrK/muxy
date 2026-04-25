@@ -925,14 +925,18 @@ final class VCSTabState {
             guard let self else { return }
             defer { isMergingPullRequest = false }
             do {
+                let skipDeleteForFork = deleteBranch && info.isCrossRepository
                 try await git.mergePullRequest(
                     repoPath: projectPath,
                     number: info.number,
                     method: method,
-                    deleteBranch: deleteBranch
+                    deleteBranch: deleteBranch && !info.isCrossRepository
                 )
                 guard !Task.isCancelled else { return }
                 pullRequestInfo = nil
+                if skipDeleteForFork {
+                    ToastState.shared.show("Branch lives on a fork — left intact.")
+                }
                 onSuccess(info, branch)
             } catch {
                 guard !Task.isCancelled else { return }
